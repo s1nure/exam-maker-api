@@ -29,23 +29,18 @@ router.get('/user-name/:id', async (req, res) => {
 router.get('/user-name-of-test/:id', async (req, res) => {
 	try {
 		const test = await Test.findById(req.params.id)
-		if (!test || !test.userId) return res.status(404) 
-		
+		if (!test || !test.userId) return res.status(404)
+
 		const user = await User.findById(test.userId)
 		res.status(200).json({
 			name: user.name,
-			userId: user._id
+			userId: user._id,
 		})
-
-
 	} catch (error) {
 		console.error('Error fetching user info:', error)
 		res.status(500).send('Internal Server Error')
 	}
-	
 })
-
-
 
 router.use(authMiddleware)
 fs.mkdir(dataFolderPath, { recursive: true }).catch(err => console.error(err))
@@ -88,7 +83,6 @@ router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
 		const userId = req.body.userId
 		const user = await User.findById(userId)
 		if (!user) {
-
 			return res.status(404).send('User not found')
 		}
 
@@ -156,7 +150,6 @@ router.post('/delete-account', async (req, res) => {
 		}
 		await deleteAccount(userId)
 
-
 		res.status(205).json({ message: 'Account deleted successfully.' })
 	} catch (error) {
 		console.error('Error deleting account:', error)
@@ -176,13 +169,18 @@ router.patch('/change-email/:id', async (req, res) => {
 	const { oldEmail, newEmail } = req.body.changeEmail
 	const user = await User.findById(req.params.id)
 
-	if (!user) return res.status(404)
+	if (!user) return res.status(404).end()
+
 
 	if (user.auth_data.email !== oldEmail || oldEmail == newEmail) {
-		return res.status(401)
+		return res.status(410).end()
 	}
 
-	User.findByIdAndUpdate(req.params.id, {'auth_data.email':newEmail} , { new: true })
+	User.findByIdAndUpdate(
+		req.params.id,
+		{ 'auth_data.email': newEmail },
+		{ new: true }
+	)
 		.then(result => {
 			res.status(202).json(result)
 		})
@@ -190,17 +188,15 @@ router.patch('/change-email/:id', async (req, res) => {
 })
 
 router.patch('/change-password/:id', async (req, res) => {
-
 	const { oldPass, newPass } = req.body.changePassword
 
 	const user = await User.findById(req.params.id)
 
-	if (!user) return res.status(404)
+	if (!user) return res.status(404).end()
 
-	
 	const isPasswordValid = await bcrypt.compare(oldPass, user.auth_data.password)
 	if (!isPasswordValid) {
-		return res.status(400).json({ message: 'Invalid password' })
+		return res.status(411).json({ message: 'Invalid password' }).end()
 	}
 
 	const hashedPassword = await bcrypt.hash(newPass, 10)
