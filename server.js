@@ -2,9 +2,6 @@ const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 
-
-
-
 const PORT = 3000
 const URL = 'mongodb://localhost:27017/ExamMaker'
 
@@ -24,6 +21,10 @@ app.listen(PORT, err => {
 		? console.log(err, 'error')
 		: console.log(`listening on port: ${PORT}. Will be started`)
 })
+
+
+
+
 /******************************USERS*********************************************/
 const authRoutes = require('./src/routes/auth')
 const userRouter = require('./src/routes/user')

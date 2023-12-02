@@ -2,11 +2,13 @@ const express = require('express')
 const bcrypt = require('bcrypt')
 const authMiddleware = require('../middleware/auth')
 const deleteAccount = require('../utils/deleteUser')
+
+const User = require('../models/user')
+const Test = require('../models/test')
+
 const multer = require('multer')
 const path = require('path')
 const fs = require('fs').promises
-const User = require('../models/user')
-const Test = require('../models/test')
 
 const router = express.Router()
 
