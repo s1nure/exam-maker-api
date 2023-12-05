@@ -106,20 +106,20 @@ router.post('/upload-avatar', upload.single('avatar'), async (req, res) => {
 	}
 })
 
-router.get('/user-all-info', async (req, res) => {
-	try {
-		const user = await User.findById(req.user._id)
-		res.status(200).json({
-			username: user.username,
-			avatarUrl: user.avatarPath
-				? `http://localhost:3000/source/avatars/${user._id}`
-				: null,
-		})
-	} catch (error) {
-		console.error('Error fetching user info:', error)
-		res.status(500).send('Internal Server Error')
-	}
-})
+// router.get('/user-all-info', async (req, res) => {
+// 	try {
+// 		const user = await User.findById(req.user)
+// 		res.status(200).json({
+// 			user: user,
+// 			avatarUrl: user.avatarPath
+// 				? `http://localhost:3000/source/avatars/${user._id}`
+// 				: null,
+// 		})
+// 	} catch (error) {
+// 		console.error('Error fetching user info:', error)
+// 		res.status(500).send('Internal Server Error')
+// 	}
+// })
 
 router.post('/delete-account', async (req, res) => {
 	try {
@@ -152,6 +152,7 @@ router.post('/delete-account', async (req, res) => {
 		}
 		await deleteAccount(userId)
 
+		await deleteAvatar(user.avatarPath)
 		res.status(205).json({ message: 'Account deleted successfully.' })
 	} catch (error) {
 		console.error('Error deleting account:', error)
@@ -172,8 +173,11 @@ router.patch('/change-email/:id', async (req, res) => {
 	const user = await User.findById(req.params.id)
 
 	if (!user) return res.status(404).end()
-
-
+	const checkEmail = await User.find({ 'auth_data.email': newEmail })
+	if (checkEmail.length > 0) {
+		console.log(checkEmail)
+		return res.status(402).json(checkEmail).end()
+	}
 	if (user.auth_data.email !== oldEmail || oldEmail == newEmail) {
 		return res.status(410).end()
 	}

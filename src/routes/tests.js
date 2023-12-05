@@ -40,6 +40,7 @@ router.delete('/tests/:id', (req, res) => {
 router.post('/tests/createNewTest', (req, res) => {
 	const test = new Test(req.body)
 	console.log(test)
+	
 	test
 		.save()
 		.then(result => {
